@@ -33,6 +33,7 @@ from pygments.lexers import PythonLexer
 from .extra_widgets import (
     DateTimeNativeWidget,
     JExcelObjectArrayWidget,
+    JsonWidget,
     ReactJsonSchemaFormWidget,
     resource_registry,
     Select2JsonWidget,
@@ -321,12 +322,11 @@ class DeformDemo(object):
 
         def validator(form, value):
             try:
-                JsonSchema.validate(value['data'], jsonschema)
+                JsonSchema.validate(value['registration'], jsonschema)
             except JsonSchema.exceptions.ValidationError as exc:
                 raise colander.Invalid(form, exc.message) from exc
 
         schema = Schema(validator=validator)
-        schema = Schema()
         form = deform.Form(
             schema,
             buttons=("submit",),
@@ -334,6 +334,65 @@ class DeformDemo(object):
         )
 
         return self.render_form(form)
+
+    @view_config(renderer="templates/form.pt", name="jsonwidget")
+    @demonstrate("Json Widget")
+    def jsonwidget(self):
+
+        jsonschema = {
+            "title": "A registration form",
+            "description": "A simple form example.",
+            "type": "object",
+            "required": ["firstName", "lastName"],
+            "properties": {
+                "firstName": {
+                    "type": "string",
+                    "title": "First name",
+                    "default": "Chuck",
+                },
+                "lastName": {
+                    "type": "string",
+                    "title": "Last name",
+                    "minLength": 1,
+                },
+                "telephone": {
+                    "type": "string",
+                    "title": "Telephone",
+                    "minLength": 10,
+                },
+            },
+        }
+
+        class Schema(colander.Schema):
+
+            registration = colander.SchemaNode(
+                colander.Mapping(unknown="preserve"),
+                widget=JsonWidget(jsonschema=jsonschema),
+            )
+
+        def validator(form, value):
+            try:
+                JsonSchema.validate(value['registration'], jsonschema)
+            except JsonSchema.exceptions.ValidationError as exc:
+                raise colander.Invalid(form, exc.message) from exc
+
+        schema = Schema(validator=validator)
+        form = deform.Form(
+            schema,
+            buttons=("submit",),
+            resource_registry=resource_registry,
+        )
+
+        return self.render_form(
+            form,
+            appstruct={
+                'registration': {
+                    'firstName': 'Chuck',
+                    'lastName': '',
+                    'telephone': '15120146654',
+                }
+            },
+        )
 
     @view_config(renderer="templates/form.pt", name="reactjsonschemaform2")
     @demonstrate("ReactJsonschemaForm Widget (more complicated)")
