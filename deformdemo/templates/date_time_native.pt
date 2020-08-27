@@ -1,0 +1,12 @@
+<div>
+  ${field.start_mapping()}
+  <input type="date"
+         name="date"
+         value="${date}"
+         id="${field.oid}-date"/>
+  <input type="time"
+         name="time"
+         value="${time}"
+         id="${field.oid}-time"/>
+  ${field.end_mapping()}
+</div>

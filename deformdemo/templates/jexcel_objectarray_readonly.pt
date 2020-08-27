@@ -1,0 +1,17 @@
+<tal:def tal:define="oid oid|field.oid;
+                     uuid uuid|field.uuid; 
+                     name name|field.name;
+                     errormsg errormsg|field.errormsg;" i18n:domain="deform">
+    <br/>
+    <div id="${oid}-${uuid}-editor"></div>
+    <script>
+    (function(){
+        const data =${data}
+        const columns =${columns}
+        jexcel(document.getElementById('${oid}-${uuid}-editor'), {
+            data: data,
+            columns: columns,
+        });
+    })()
+    </script>
+</tal:def>

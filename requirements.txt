@@ -1,4 +1,5 @@
 deform==2.0.10
 pyramid==1.10.4
 waitress==1.4.4
+jsonschema==3.2.0
 .

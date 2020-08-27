@@ -1,0 +1,60 @@
+<tal:def tal:define="oid oid|field.oid;
+                     uuid uuid|field.uuid; 
+                     name name|field.name;
+                     errormsg errormsg|field.errormsg;" i18n:domain="deform">
+
+    <input id="${oid}-${uuid}" name="${name}" value="${cstruct}" hidden></input>
+    <br/>
+    <div id="${oid}-${uuid}-editor"></div>
+    <div tal:condition="errormsg" class="clearfix alert alert-danger">
+        <p>${errormsg}</p>
+    </div>
+    <p class="help-block">
+       This table supports copy/pasting to excel 
+    </p>
+    <script>
+        (function(){
+            const data = ${data}
+            // get the existing data first
+            document.getElementById('${oid}-${uuid}').value = JSON.stringify(data)
+            const columns = ${columns}
+            var jEditor
+            updateValue = () => {
+                // update value of form field
+
+                // filter empty rows
+                let types = jEditor.options.columns.map(c => c.type);
+                let contents = jEditor
+                .getData()
+                .filter(row => row.some(el => !!el))
+                .map(row => row.map((el, i) => (types[i] === "numeric" ? Number(el) : el)));
+
+                // convert array of arrays into array of objects
+                let keys = jEditor.options.columns.map(c => c.field);
+                contents = contents.map(values =>
+                keys.reduce((obj, key, index) => ({ ...obj, [key]: values[index] }), {})
+                );
+
+                document.getElementById("${oid}-${uuid}").value = JSON.stringify(contents);
+                console.log(JSON.stringify(contents, null, "\t"));
+                }
+            jEditor = jexcel(document.getElementById('${oid}-${uuid}-editor'), {
+                data: data,
+                columns: columns,
+                onchange: updateValue,
+                onblur: updateValue,
+                ondeleterow: updateValue,
+                minSpareRows: 1,
+                allowDeleteColumn: false,
+                allowInsertColumn: false,
+                allowManualInsertColumn: false,
+                allowDeleteColumn: false
+            })
+        })()
+
+        // remove jexcel on form submit
+        $("form").submit(function() {
+            $('#jexcel_content').remove()
+        });
+    </script>
+</tal:def>
