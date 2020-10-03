@@ -8,3 +8,5 @@
 .tox/
 [Ff]irefox*
 geckodriver*
+.mypy_cache
+deformdemo_example
